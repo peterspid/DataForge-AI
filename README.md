@@ -4,7 +4,7 @@ DataForge AI is a data-bounty and provenance workspace built for the **0G Galile
 
 The product follows one rule: **proofs before promises**. Data is shown as stored only after 0G returns a real receipt. The application does not seed fake marketplace activity, invent quality scores, or simulate blockchain transactions and payments.
 
-**Live application:** [https://frontend-teal-beta-ype2l2g0md.vercel.app](https://frontend-teal-beta-ype2l2g0md.vercel.app)
+**Live application:** [https://dataforge-0g.vercel.app](https://dataforge-0g.vercel.app)
 
 ## What DataForge AI does
 
