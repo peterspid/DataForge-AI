@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
-import { formatEther } from "ethers";
+import { formatEther, keccak256, toUtf8Bytes } from "ethers";
 import { fingerprintFile, uploadToZeroG } from "./lib/zero-g-storage";
 import {
   contractWrite,
@@ -85,6 +85,7 @@ type Bounty = {
   license?: string;
   minimumScore?: number;
   escrowTxHash?: string;
+  requester?: string;
 };
 
 type Submission = {
@@ -104,6 +105,7 @@ type Submission = {
   validationExplanation?: string;
   validationModel?: string;
   settlementTxHash?: string;
+  contributor?: string;
 };
 
 type Dataset = {
@@ -202,6 +204,7 @@ async function readOnChainWorkspace() {
       rewardPerSubmission: Number(formatEther(raw.reward)),
       location: metadata.location || "Global",
       createdBy: shortAddress(String(raw.requester)),
+      requester: String(raw.requester),
       createdAt: "On-chain",
       status,
       minScore: Number(raw.minimumScore),
@@ -236,6 +239,7 @@ async function readOnChainWorkspace() {
       reward: status === "Accepted" ? Number(formatEther((await contract.getBounty(raw.bountyId)).reward)) : 0,
       hash: String(raw.rootHash),
       txHash: String(raw.storageTxHash),
+      contributor: String(raw.contributor),
       reportHash: String(raw.reportHash),
       checks: [
         { label: "Merkle root", value: "Recorded" },
@@ -600,6 +604,37 @@ export default function Home() {
     });
     changeView("submissions");
   };
+  const reviewOnChain = async (submissionId: string, accept: boolean) => {
+    const ethereum = getEthereum();
+    if (!ethereum) return;
+    try {
+      const contract = await contractWrite(ethereum);
+      const tx = await contract.reviewSubmission(BigInt(submissionId), accept);
+      await waitForTransaction(tx);
+      const chain = await readOnChainWorkspace();
+      setBounties(chain.bounties);
+      setSubmissions(chain.submissions);
+      setNotice({ kind: "success", text: accept ? "Submission accepted and paid on Galileo." : "Submission rejected on Galileo." });
+    } catch (error) {
+      setNotice({ kind: "error", text: error instanceof Error ? error.message : "The review transaction failed." });
+    }
+  };
+  const disputeOnChain = async (submissionId: string) => {
+    const ethereum = getEthereum();
+    if (!ethereum) return;
+    try {
+      const contract = await contractWrite(ethereum);
+      const reasonHash = keccak256(toUtf8Bytes("Contributor requests requester review of this decision."));
+      const tx = await contract.openDispute(BigInt(submissionId), reasonHash);
+      await waitForTransaction(tx);
+      const chain = await readOnChainWorkspace();
+      setBounties(chain.bounties);
+      setSubmissions(chain.submissions);
+      setNotice({ kind: "success", text: "Dispute opened on Galileo." });
+    } catch (error) {
+      setNotice({ kind: "error", text: error instanceof Error ? error.message : "The dispute transaction failed." });
+    }
+  };
   const downloadManifest = (dataset: Dataset) => {
     const receipts = submissions
       .filter((submission) => submission.bountyId === dataset.id)
@@ -615,7 +650,7 @@ export default function Home() {
       items: dataset.items,
       license: dataset.license,
       generatedAt: new Date().toISOString(),
-      provenance: "DataForge AI / 0G testnet",
+      provenance: "DataForge / 0G Galileo testnet",
       receipts,
     };
     const blob = new Blob([JSON.stringify(manifest, null, 2)], {
@@ -651,7 +686,7 @@ export default function Home() {
               <Hammer size={17} strokeWidth={2.2} />
             </span>
             <span>
-              DataForge <em>AI</em>
+              DataForge
             </span>
           </button>
           <span
@@ -768,6 +803,8 @@ export default function Home() {
           <CreateBountyView
             onCreated={handleCreatedBounty}
             walletAddress={wallet?.address}
+            onReview={reviewOnChain}
+            onDispute={disputeOnChain}
             onConnect={connectWallet}
           />
         ) : null}
@@ -1189,10 +1226,14 @@ function BountyCard({
 function CreateBountyView({
   onCreated,
   walletAddress,
+  onReview,
+  onDispute,
   onConnect,
 }: {
   onCreated: (bounty: Bounty) => void;
   walletAddress?: string;
+  onReview: (submissionId: string, accept: boolean) => void;
+  onDispute: (submissionId: string) => void;
   onConnect: () => void;
 }) {
   const [form, setForm] = useState({
@@ -1499,7 +1540,14 @@ function SubmissionsView({
             ))}
           </div>
         </section>
-        <SubmissionDetail submission={selected} onView={onView} />
+        <SubmissionDetail
+          submission={selected}
+          onView={onView}
+          walletAddress={walletAddress}
+          bounty={bounties.find((item) => item.id === selected?.bountyId)}
+          onReview={onReview}
+          onDispute={onDispute}
+        />
       </div>
       {uploadOpen ? (
         <UploadPanel
@@ -1523,9 +1571,17 @@ function SubmissionsView({
 function SubmissionDetail({
   submission,
   onView,
+  walletAddress,
+  bounty,
+  onReview,
+  onDispute,
 }: {
   submission?: Submission;
   onView: (view: View) => void;
+  walletAddress?: string;
+  bounty?: Bounty;
+  onReview: (submissionId: string, accept: boolean) => void;
+  onDispute: (submissionId: string) => void;
 }) {
   if (!submission)
     return (
@@ -1628,6 +1684,32 @@ function SubmissionDetail({
           View transaction <ArrowRight size={14} />
         </a>
       </div>
+      {submission.validationExplanation ? (
+        <div className="profile-tip">
+          <ShieldCheck size={17} />
+          <div>
+            <strong>Validator note</strong>
+            <p>{submission.validationExplanation}</p>
+            {submission.validationModel ? <small>Model: {submission.validationModel}</small> : null}
+          </div>
+        </div>
+      ) : null}
+      {submission.status === "Needs review" && bounty?.requester?.toLowerCase() === walletAddress?.toLowerCase() ? (
+        <div className="proof-actions" aria-label="Requester review actions">
+          <button className="button button-primary" onClick={() => onReview(submission.id, true)}>
+            Accept and pay <ArrowRight size={14} />
+          </button>
+          <button className="button button-secondary" onClick={() => onReview(submission.id, false)}>
+            Reject
+          </button>
+        </div>
+      ) : null}
+      {(submission.status === "Rejected" || submission.status === "Needs review") &&
+      submission.contributor?.toLowerCase() === walletAddress?.toLowerCase() ? (
+        <button className="text-button" onClick={() => onDispute(submission.id)}>
+          Open dispute <ArrowRight size={14} />
+        </button>
+      ) : null}
       {submission.status === "Accepted" ? (
         <div className="reward-banner">
           <div className="reward-icon">

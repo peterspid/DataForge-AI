@@ -170,51 +170,45 @@ These boundaries are intentional so the UI never presents unfinished economic or
 
 ### 1. Shared marketplace state
 
-- Add authenticated requester and contributor accounts linked to wallet addresses.
-- Move bounty and submission metadata from local storage to a shared indexed data layer.
-- Add wallet-scoped synchronization across browsers and devices.
-- Add lifecycle states for drafts, active collections, review, completion, cancellation, and archival.
-- Add notifications for new submissions, decisions, disputes, and payments.
+- Implemented: wallet-linked requester and contributor identity.
+- Implemented: shared bounty and submission records in the DataForge Galileo contract.
+- Implemented: wallet-independent reads and 45-second client synchronization.
+- Implemented: draft, active, review, completed, cancelled, and archived lifecycle states.
+- Remaining: production indexer/database for fast queries and durable notification delivery.
 
 ### 2. Audited escrow and settlement
 
-- Build a 0G-compatible bounty escrow smart contract.
-- Lock the requester’s reward pool when a bounty is published.
-- Release rewards only after an explicit acceptance policy succeeds.
-- Support refunds, deadlines, partial completion, disputes, and emergency pauses.
-- Complete independent contract audits, invariant testing, and a public testnet period before mainnet use.
+- Implemented: deployed DataForge escrow contract on Galileo at `0x6a440691ee49785BD9863F1232b0F054c94B8167`.
+- Implemented: exact reward-pool funding at publication and automatic payment for validator-approved submissions.
+- Implemented: requester review, partial completion, expiry refunds, contributor disputes, duplicate fingerprints, and admin pause.
+- Implemented: six local-chain contract tests covering funding, settlement, review, duplicates, refunds, and pause behavior.
+- Remaining: independent audit, multisig administration, public testnet review period, and mainnet deployment.
 
 ### 3. DataForge validation
 
-- Add server-side file inspection and malware protection before downstream processing.
-- Integrate 0G Compute through a server-only API route.
-- Validate MIME type, corruption, dimensions, duration, schema, and required metadata.
-- Add cross-workspace duplicate and similarity detection.
-- Produce explainable quality reports instead of unexplained numeric scores.
-- Route uncertain or disputed results to human review.
+- Implemented: server-only `/api/validate` route with size, filename, JSON parsing, and technical checks.
+- Implemented: 0G Router integration, signed report hash, and on-chain validator attestation.
+- Implemented: explainable report storage and requester review for uncertain results.
+- Implemented: binary media fail-closed behavior when the available testnet model cannot inspect semantics.
+- Remaining: replace the currently rejected Router credential, add malware scanning, media metadata inspection, and cross-workspace similarity.
 
 ### 4. Reputation and moderation
 
-- Introduce reputation based only on verifiable completed activity.
-- Separate requester reputation from contributor reputation.
-- Add spam controls, rate limits, reporting, moderation queues, and wallet abuse detection.
-- Design an appeal process and transparent enforcement history.
+- Implemented: on-chain requester/contributor counters for created bounties, submissions, acceptance, rejection, disputes, earned, and paid values.
+- Implemented: one-report-per-wallet submission reporting and dispute events.
+- Remaining: authenticated moderation console, rate limits, abuse scoring, appeals, and a human review queue.
 
 ### 5. Dataset access and licensing
 
-- Add encrypted or token-gated access for private datasets.
-- Store machine-readable license terms and consent metadata in manifests.
-- Add dataset purchasing, royalty distribution, version history, and revocation rules.
-- Provide requester exports for training pipelines and contributor data-deletion workflows where legally required.
+- Implemented: machine-readable license metadata in bounties and exported manifests.
+- Implemented: provenance-preserving root, storage transaction, validation report, and timestamp records.
+- Remaining: encrypted/token-gated access, dataset commerce, royalty contracts, version revocation, and deletion workflows.
 
 ### 6. Operational readiness
 
-- Add unit, integration, smart-contract, and browser end-to-end test suites.
-- Test wallet and browser compatibility across desktop and mobile providers.
-- Add error tracking, RPC and indexer monitoring, transaction alerts, and public service status.
-- Add structured logs, audit trails, backups, recovery procedures, and incident-response documentation.
-- Establish performance budgets, accessibility testing, privacy policy, terms of service, and data-retention rules.
-- Complete threat modeling, penetration testing, contract audits, and mainnet launch review.
+- Implemented: strict TypeScript, production builds, dependency audit, contract tests, security headers, and live RPC health checks.
+- Implemented: on-chain event trail for bounties, submissions, payments, disputes, reports, and administrative actions.
+- Remaining: browser E2E matrix, error tracking, alerting, backups, incident response, legal pages, threat modeling, penetration testing, contract audit, and mainnet review.
 
 ## Security principles
 

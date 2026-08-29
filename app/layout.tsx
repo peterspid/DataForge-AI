@@ -11,10 +11,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DataForge AI | Decentralized data marketplace",
+  title: "DataForge | On-chain data marketplace",
   description:
     "A 0G-ready marketplace where useful AI data gets verified and rewarded.",
-  generator: "DataForge AI",
+  generator: "DataForge",
 };
 
 export default function RootLayout({
