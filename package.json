@@ -5,6 +5,7 @@
   "scripts": {
     "build": "next build --webpack",
     "contract:compile": "node scripts/compile-contract.mjs",
+    "contract:prepare": "node scripts/prepare-deploy.mjs",
     "contract:test": "pnpm contract:compile && node --test tests/contract.test.mjs",
     "contract:deploy": "pnpm contract:compile && node scripts/deploy-contract.mjs",
     "dev": "next dev --webpack",
