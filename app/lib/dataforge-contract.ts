@@ -60,6 +60,11 @@ export async function contractWrite(ethereum: WalletEthereum) {
   return new Contract(address, DATAFORGE_CONTRACT_ABI, signer);
 }
 
+export async function getWalletBalance(ethereum: WalletEthereum, account: string) {
+  const provider = new BrowserProvider(ethereum, GALILEO_NETWORK);
+  return provider.getBalance(getAddress(account));
+}
+
 export async function waitForTransaction(tx: ContractTransactionResponse) {
   const receipt = await tx.wait();
   if (!receipt) throw new Error("The Galileo transaction did not return a receipt.");

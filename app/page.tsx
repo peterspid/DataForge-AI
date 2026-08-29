@@ -8,6 +8,7 @@ import LandingPage from "./components/LandingPage";
 import {
   contractWrite,
   getEthereum,
+  getWalletBalance,
   parseReward,
   publicContract,
   waitForTransaction,
@@ -253,7 +254,7 @@ async function readOnChainWorkspace() {
   return { bounties: nextBounties, submissions: nextSubmissions };
 }
 
-export function DashboardHome() {
+function DashboardHome() {
   const [view, setView] = useState<View>("overview");
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -549,6 +550,13 @@ export function DashboardHome() {
       });
       const target = BigInt(bounty.target);
       const reward = parseReward(String(bounty.rewardPerSubmission));
+      const escrow = target * reward;
+      const balance = await getWalletBalance(ethereum, wallet.address);
+      if (balance <= escrow) {
+        throw new Error(
+          `Insufficient Galileo balance. This bounty needs ${formatToken(Number(formatEther(escrow)))} plus gas, but this wallet has ${formatToken(Number(formatEther(balance)))}. Reduce the target or reward, or fund the wallet first.`,
+        );
+      }
       const tx = await contract.createAndPublish(
         metadata,
         bounty.license ?? "CC-BY-4.0",
@@ -556,7 +564,7 @@ export function DashboardHome() {
         reward,
         deadline,
         bounty.minScore || 70,
-        { value: target * reward },
+        { value: escrow },
       );
       const receipt = await waitForTransaction(tx);
       const chain = await readOnChainWorkspace();
@@ -1226,7 +1234,6 @@ function CreateBountyView({
     description: "",
     type: "Images",
     target: "",
-    rewardPool: "",
     rewardPerSubmission: "",
     location: "",
     tags: "",
@@ -1237,23 +1244,15 @@ function CreateBountyView({
   const targetCount = Number(form.target) || 0;
   const rewardPerItem = Number(form.rewardPerSubmission) || 0;
   const requiredPool = targetCount * rewardPerItem;
-  const poolValue = Number(form.rewardPool) || 0;
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!walletAddress) {
       setError("Connect a 0G Galileo wallet before creating a bounty.");
       return;
     }
-    if (!form.title.trim() || !form.description.trim() || targetCount < 1 || poolValue <= 0 || rewardPerItem <= 0) {
+    if (!form.title.trim() || !form.description.trim() || targetCount < 1 || rewardPerItem <= 0) {
       setError(
-        "Complete the title, description, target, reward pool, and reward per item with positive values.",
-      );
-      return;
-    }
-    if (poolValue < requiredPool) {
-      const shortfall = requiredPool - poolValue;
-      setError(
-        `Reward pool is too small. This bounty needs at least ${tokenNumberFormat.format(requiredPool)} 0G; add ${tokenNumberFormat.format(shortfall)} 0G more.`,
+        "Complete the title, description, target, and reward per item with positive values.",
       );
       return;
     }
@@ -1265,7 +1264,7 @@ function CreateBountyView({
       type: form.type,
       target: Number(form.target),
       collected: 0,
-      rewardPool: Number(form.rewardPool),
+      rewardPool: requiredPool,
       rewardPerSubmission: Number(form.rewardPerSubmission),
       location: form.location,
       createdBy: walletAddress ? shortAddress(walletAddress) : "Unconnected wallet",
@@ -1373,14 +1372,13 @@ function CreateBountyView({
                 placeholder="10000"
               />
             </Field>
-            <Field label="Reward pool (0G)" required>
+            <Field label="Required escrow (0G)" hint="Target × reward" required>
               <input
                 type="number"
-                min="0.01"
-                step="0.01"
-                value={form.rewardPool}
-                onChange={(event) => update("rewardPool", event.target.value)}
-                placeholder="2000"
+                value={requiredPool || ""}
+                placeholder="Calculated automatically"
+                readOnly
+                aria-readonly="true"
               />
             </Field>
             <Field label="Reward per item (0G)" required>
@@ -1396,15 +1394,11 @@ function CreateBountyView({
               />
             </Field>
           </div>
-          <div className={`reward-calculation ${poolValue >= requiredPool && requiredPool > 0 ? "reward-calculation-ok" : ""}`} role="status" aria-live="polite">
+          <div className={`reward-calculation ${requiredPool > 0 ? "reward-calculation-ok" : ""}`} role="status" aria-live="polite">
             <span>Required escrow</span>
             <strong>{requiredPool > 0 ? `${tokenNumberFormat.format(requiredPool)} 0G` : "Enter target and reward"}</strong>
             <small>
-              {requiredPool > 0 && poolValue < requiredPool
-                ? `${tokenNumberFormat.format(requiredPool - poolValue)} 0G still needed`
-                : requiredPool > 0
-                  ? "Pool covers every target item"
-                  : "Target × reward per item"}
+              {requiredPool > 0 ? "Locked in escrow when published" : "Target × reward per item"}
             </small>
           </div>
           {error ? (
