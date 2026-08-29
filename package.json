@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "build": "next build --webpack",
+    "contract:compile": "node scripts/compile-contract.mjs",
+    "contract:test": "pnpm contract:compile && node --test tests/contract.test.mjs",
+    "contract:deploy": "pnpm contract:compile && node scripts/deploy-contract.mjs",
     "dev": "next dev --webpack",
     "lint": "tsc --noEmit",
+    "test": "pnpm contract:test",
     "start": "next start"
   },
   "dependencies": {

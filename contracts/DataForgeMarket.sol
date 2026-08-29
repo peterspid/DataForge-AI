@@ -330,6 +330,9 @@ contract DataForgeMarket {
             submission.status != SubmissionStatus.Rejected
         ) revert InvalidState();
         if (reasonHash == bytes32(0)) revert InvalidInput();
+        if (submission.status == SubmissionStatus.Rejected) {
+            bounties[submission.bountyId].unresolved += 1;
+        }
         submission.status = SubmissionStatus.Disputed;
         reputations[msg.sender].disputes += 1;
         emit DisputeOpened(submissionId, msg.sender, reasonHash);
