@@ -183,7 +183,7 @@ These boundaries are intentional so the UI never presents unfinished economic or
 - Support refunds, deadlines, partial completion, disputes, and emergency pauses.
 - Complete independent contract audits, invariant testing, and a public testnet period before mainnet use.
 
-### 3. ForgeGuard validation
+### 3. DataForge validation
 
 - Add server-side file inspection and malware protection before downstream processing.
 - Integrate 0G Compute through a server-only API route.

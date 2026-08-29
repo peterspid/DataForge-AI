@@ -586,22 +586,17 @@ export default function Home() {
       });
     }
   };
-  const handleSubmitted = (submission: Submission) => {
-    setSubmissions((current) => [submission, ...current]);
-    setBounties((current) =>
-      current.map((bounty) =>
-        bounty.id === submission.bountyId
-          ? {
-              ...bounty,
-              collected: Math.min(bounty.target, bounty.collected + 1),
-            }
-          : bounty,
-      ),
-    );
+  const handleSubmitted = async (submission: Submission) => {
+    const chain = await readOnChainWorkspace();
+    setBounties(chain.bounties);
+    setSubmissions(chain.submissions);
     setSelectedSubmissionId(submission.id);
     setNotice({
       kind: "success",
-      text: "File stored on 0G with a verifiable Merkle root and transaction receipt.",
+      text:
+        submission.status === "Accepted"
+          ? "File stored and reward released on Galileo."
+          : "File stored on 0G and sent to requester review.",
     });
     changeView("submissions");
   };
@@ -712,7 +707,7 @@ export default function Home() {
             <ShieldCheck size={17} />
           </div>
           <div>
-            <strong>ForgeGuard</strong>
+            <strong>DataForge</strong>
             <span>Proof verification ready</span>
           </div>
           <span className="status-dot" />
@@ -785,6 +780,7 @@ export default function Home() {
             onSelect={setSelectedSubmissionId}
             onView={changeView}
             onSubmitted={handleSubmitted}
+            walletAddress={wallet?.address}
             initialUploadOpen={Boolean(pendingUploadBountyId)}
             onUploadClosed={() => setPendingUploadBountyId(null)}
           />
@@ -1423,6 +1419,7 @@ function SubmissionsView({
   onSelect,
   onView,
   onSubmitted,
+  walletAddress,
   initialUploadOpen,
   onUploadClosed,
 }: {
@@ -1433,6 +1430,7 @@ function SubmissionsView({
   onSelect: (id: string) => void;
   onView: (view: View) => void;
   onSubmitted: (submission: Submission) => void;
+  walletAddress?: string;
   initialUploadOpen: boolean;
   onUploadClosed: () => void;
 }) {
@@ -1510,6 +1508,7 @@ function SubmissionsView({
           knownFingerprints={submissions
             .map((submission) => submission.fingerprint)
             .filter((value): value is string => Boolean(value))}
+          walletAddress={walletAddress}
           onClose={closeUpload}
           onSubmit={(submission) => {
             closeUpload();
@@ -1654,12 +1653,14 @@ function UploadPanel({
   bounties,
   defaultBounty,
   knownFingerprints,
+  walletAddress,
   onClose,
   onSubmit,
 }: {
   bounties: Bounty[];
   defaultBounty?: Bounty;
   knownFingerprints: string[];
+  walletAddress?: string;
   onClose: () => void;
   onSubmit: (submission: Submission) => void;
 }) {
@@ -1734,8 +1735,48 @@ function UploadPanel({
         throw new Error("This exact file is already in your contribution history.");
       }
       const receipt = await uploadToZeroG(file, ethereum, setUploadStatus);
+      if (!walletAddress) throw new Error("Connect the contributor wallet before submitting.");
+      setUploadStatus("Running the DataForge quality check…");
+      const validationForm = new FormData();
+      validationForm.append("file", file);
+      validationForm.append("bountyId", bounty.id);
+      validationForm.append("contributor", walletAddress);
+      validationForm.append("rootHash", receipt.rootHash);
+      validationForm.append("storageTxHash", receipt.txHash);
+      validationForm.append("fingerprint", fingerprint);
+      const validationResponse = await fetch("/api/validate", {
+        method: "POST",
+        body: validationForm,
+        signal: AbortSignal.timeout(35_000),
+      });
+      const validation = (await validationResponse.json()) as {
+        error?: string;
+        score: number;
+        decision: "accept" | "review";
+        explanation: string;
+        reportHash: string;
+        issuedAt: number;
+        signature: string;
+        model: string;
+      };
+      if (!validationResponse.ok) throw new Error(validation.error || "The validator could not assess this contribution.");
+      setUploadStatus("Submitting the proof and settlement policy to Galileo…");
+      const contract = await contractWrite(ethereum);
+      const tx = await contract.submitProof(
+        BigInt(bounty.id),
+        receipt.rootHash,
+        receipt.txHash,
+        fingerprint,
+        validation.score,
+        validation.reportHash,
+        validation.issuedAt,
+        validation.signature,
+        file.name,
+      );
+      const settlementReceipt = await waitForTransaction(tx);
+      const accepted = validation.decision === "accept" && validation.score >= (bounty.minScore || 70);
       onSubmit({
-        id: receipt.rootHash,
+        id: String(bounty.id) + ":" + receipt.rootHash,
         bountyId: bounty.id,
         bountyTitle: bounty.title,
         fileName: file.name,
@@ -1746,17 +1787,22 @@ function UploadPanel({
           hour: "2-digit",
           minute: "2-digit",
         }),
-        status: "Stored",
-        score: null,
-        reward: 0,
+        status: accepted ? "Accepted" : "Needs review",
+        score: validation.score,
+        reward: accepted ? bounty.rewardPerSubmission : 0,
         hash: receipt.rootHash,
         txHash: receipt.txHash,
         fingerprint,
+        reportHash: validation.reportHash,
+        validationExplanation: validation.explanation,
+        validationModel: validation.model,
+        settlementTxHash: accepted ? settlementReceipt.hash : undefined,
         checks: [
           { label: "Merkle root", value: "Generated" },
           { label: "Storage network", value: "0G Turbo" },
           { label: "Wallet signature", value: "Confirmed" },
-          { label: "Transaction receipt", value: "Recorded" },
+          { label: "Quality report", value: validation.decision === "accept" ? "Accepted" : "Review" },
+          { label: "Settlement receipt", value: accepted ? "Released" : "Pending review" },
         ],
       });
     } catch (uploadError) {
