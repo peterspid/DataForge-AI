@@ -1,0 +1,109 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - button "Go to overview" [ref=e5] [cursor=pointer]:
+          - generic [ref=e11]:
+            - text: DataForge
+            - emphasis [ref=e12]: AI
+        - generic [ref=e13]: 0G testnet
+      - generic [ref=e15]:
+        - button "Notifications" [ref=e16] [cursor=pointer]
+        - button "Connect wallet" [ref=e21] [cursor=pointer]
+    - complementary [ref=e26]:
+      - generic [ref=e27]: Workspace
+      - navigation "Primary navigation" [ref=e28]:
+        - button "Overview" [ref=e29] [cursor=pointer]
+        - button "Marketplace" [ref=e36] [cursor=pointer]
+        - button "Create bounty" [ref=e43] [cursor=pointer]
+        - button "My submissions" [ref=e46] [cursor=pointer]
+        - button "Datasets" [ref=e52] [cursor=pointer]
+      - generic [ref=e64]:
+        - strong [ref=e65]: ForgeGuard
+        - generic [ref=e66]: Validator online
+      - button "Profile & settings" [ref=e68] [cursor=pointer]
+      - generic [ref=e73]:
+        - text: Built for the 0G ecosystem
+        - generic [ref=e74]: v0.1 demo workspace
+    - main [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - paragraph [ref=e79]: Your workspace
+            - heading "Good evening, Nikhil" [level=1] [ref=e80]
+            - paragraph [ref=e81]: A clear view of the data you are collecting, validating, and earning from.
+          - button "Create bounty" [ref=e83] [cursor=pointer]
+        - region "Workspace metrics" [ref=e85]:
+          - article [ref=e86]:
+            - generic [ref=e87]: Active bounties
+            - strong [ref=e95]: "4"
+            - text: 2 collecting now
+          - article [ref=e96]:
+            - generic [ref=e97]: Accepted items
+            - strong [ref=e103]: 6.2k
+            - text: Across 3 datasets
+          - article [ref=e104]:
+            - generic [ref=e105]: Total earned
+            - strong [ref=e110]: $427.38
+            - text: +$0.58 this week
+          - article [ref=e111]:
+            - generic [ref=e112]: Average quality
+            - strong [ref=e118]: 93/100
+            - text: Top 12% of contributors
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - paragraph [ref=e123]: Collection progress
+                - heading "Keep the pipeline moving" [level=2] [ref=e124]
+              - button "Explore bounties" [ref=e125] [cursor=pointer]
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - generic [ref=e130]:
+                  - generic [ref=e131]: Indian road damage images
+                  - strong [ref=e132]: 62%
+                - generic [ref=e135]:
+                  - generic [ref=e136]: 6,214 of 10,000 items
+                  - generic [ref=e137]: $2,000.00 pool
+              - generic [ref=e138]:
+                - generic [ref=e139]:
+                  - generic [ref=e140]: English voice clips
+                  - strong [ref=e141]: 31%
+                - generic [ref=e144]:
+                  - generic [ref=e145]: 1,540 of 5,000 items
+                  - generic [ref=e146]: $1,500.00 pool
+              - generic [ref=e147]:
+                - generic [ref=e148]:
+                  - generic [ref=e149]: Plant disease field photos
+                  - strong [ref=e150]: 78%
+                - generic [ref=e153]:
+                  - generic [ref=e154]: 6,240 of 8,000 items
+                  - generic [ref=e155]: $3,000.00 pool
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - paragraph [ref=e159]: Latest activity
+                - heading "Recent submissions" [level=2] [ref=e160]
+              - button "View all submissions" [ref=e161] [cursor=pointer]
+            - generic [ref=e164]:
+              - button "delhi-pothole-014.jpg Indian road damage images Accepted" [ref=e165] [cursor=pointer]:
+                - generic [ref=e172]:
+                  - strong [ref=e173]: delhi-pothole-014.jpg
+                  - generic [ref=e174]: Indian road damage images
+                - generic [ref=e175]: Accepted
+              - button "tomato-leaf-003.png Plant disease field photos Accepted" [ref=e177] [cursor=pointer]:
+                - generic [ref=e184]:
+                  - strong [ref=e185]: tomato-leaf-003.png
+                  - generic [ref=e186]: Plant disease field photos
+                - generic [ref=e187]: Accepted
+              - button "roadside-crack.jpg Indian road damage images Needs review" [ref=e189] [cursor=pointer]:
+                - generic [ref=e196]:
+                  - strong [ref=e197]: roadside-crack.jpg
+                  - generic [ref=e198]: Indian road damage images
+                - generic [ref=e199]: Needs review
+        - generic [ref=e201]:
+          - generic [ref=e206]:
+            - strong [ref=e207]: ForgeGuard is watching your data
+            - paragraph [ref=e208]: Every accepted item receives a quality score, duplicate check, and a verifiable content hash.
+          - button "Review validation" [ref=e209] [cursor=pointer]
+  - alert [ref=e212]

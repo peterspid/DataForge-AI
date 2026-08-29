@@ -1,0 +1,35 @@
+[   20678ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   21036ms] [LOG] [HMR] connected @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   22089ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   22250ms] [LOG] %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   22252ms] [LOG] %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {route: /, path: /} @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   22260ms] [LOG] %c[Vercel Web Analytics]%c [view] http://localhost:3002/ color: rgb(120, 120, 120) color: inherit {o: http://localhost:3002/, sv: 0.1.3, sdkn: @vercel/analytics/next, sdkv: 1.3.1, ts: 1787942514241} /_vercel/insights/view @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   22368ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3002/favicon.ico:0
+[   23252ms] [LOG] [Fast Refresh] done in 1267ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   87741ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   87867ms] [LOG] [Fast Refresh] done in 246ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   89861ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[   90752ms] [LOG] [Fast Refresh] done in 1006ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  320505ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  322287ms] [LOG] [Fast Refresh] done in 1643ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  362338ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  363553ms] [LOG] [Fast Refresh] done in 1262ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  844371ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  844997ms] [LOG] [Fast Refresh] done in 727ms @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  845193ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  845220ms] [LOG] [HMR] connected @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  845335ms] [LOG] %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  845335ms] [LOG] %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {route: /, path: /} @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  845335ms] [LOG] %c[Vercel Web Analytics]%c [view] http://localhost:3002/ color: rgb(120, 120, 120) color: inherit {o: http://localhost:3002/, sv: 0.1.3, sdkn: @vercel/analytics/next, sdkv: 1.3.1, ts: 1787943337317} /_vercel/insights/view @ http://localhost:3002/_next/static/chunks/a509a_next_dist_8f6b494e._.js:2294
+[  897656ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  901007ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  904356ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  907704ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  911055ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  918374ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  925738ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  933088ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  940438ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  947788ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  955139ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
+[  962538ms] [ERROR] WebSocket connection to 'ws://localhost:3002/_next/webpack-hmr?id=gSM4mRwfsvd6d1R-D7JcE' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED @ http://localhost:3002/_next/static/chunks/a509a_next_dist_client_cdbe4a13._.js:9911
