@@ -224,11 +224,7 @@ These boundaries are intentional so the UI never presents unfinished economic or
 - Do not show a contribution as stored without a real 0G receipt.
 - Do not show rewards as paid without an on-chain settlement transaction.
 - Preserve verifiable provenance from the original contribution through every exported dataset version.
-
-## Documentation
-
-Detailed implementation notes, data models, security decisions, and the release checklist are available in [`project.md`](../project.md).
-
+ 
 ## Status
 
 - Frontend deployment: live
