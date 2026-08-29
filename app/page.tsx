@@ -783,6 +783,8 @@ export default function Home() {
             onView={changeView}
             onSubmitted={handleSubmitted}
             walletAddress={wallet?.address}
+            onReview={reviewOnChain}
+            onDispute={disputeOnChain}
             initialUploadOpen={Boolean(pendingUploadBountyId)}
             onUploadClosed={() => setPendingUploadBountyId(null)}
           />
@@ -1429,6 +1431,8 @@ function SubmissionsView({
   onView,
   onSubmitted,
   walletAddress,
+  onReview,
+  onDispute,
   initialUploadOpen,
   onUploadClosed,
 }: {
@@ -1440,6 +1444,8 @@ function SubmissionsView({
   onView: (view: View) => void;
   onSubmitted: (submission: Submission) => void;
   walletAddress?: string;
+  onReview: (submissionId: string, accept: boolean) => void;
+  onDispute: (submissionId: string) => void;
   initialUploadOpen: boolean;
   onUploadClosed: () => void;
 }) {
