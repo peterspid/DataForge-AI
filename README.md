@@ -161,7 +161,7 @@ Secrets must never use a `NEXT_PUBLIC_` variable unless they are intentionally s
 
 The deployed application is a working **Galileo testnet storage and provenance MVP**. It is suitable for testing wallet connection, bounty configuration, real storage uploads, receipt inspection, and manifest export.
 
-It is not yet a financial-grade, multi-user production marketplace. Bounties and workspace records currently remain in the user’s browser. Reward values are collection metadata; there is no deployed escrow contract or automatic payment settlement. ForgeGuard currently exposes proof verification information but does not run server-side AI validation.
+The deployed application is a shared, on-chain Galileo testnet marketplace. Bounties are funded in the DataForge escrow contract, accepted submissions settle automatically, and the server-only validator checks supported text and structured files through 0G Compute. Binary media receives technical checks and remains in requester review until a suitable model is available.
 
 These boundaries are intentional so the UI never presents unfinished economic or validation features as real.
 
@@ -230,7 +230,7 @@ These boundaries are intentional so the UI never presents unfinished economic or
 - Frontend deployment: live
 - Target network: 0G Galileo testnet
 - Real storage receipts: implemented
-- Shared multi-user backend: planned
-- Escrow and automatic payments: planned
-- 0G Compute quality validation: planned
+- Shared multi-user backend: implemented through the on-chain DataForge contract
+- Escrow and automatic payments: implemented on Galileo testnet
+- 0G Compute quality validation: implemented for text and structured files
 - Mainnet readiness: planned after testing and audits
