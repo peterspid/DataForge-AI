@@ -55,6 +55,8 @@ Private keys are never requested by or embedded in the frontend. Every upload tr
 - Wallet connection, account-change handling, and Galileo network switching.
 - Live Galileo block-height health indicator.
 - Real wallet-signed uploads to 0G Turbo Storage.
+- On-chain shared bounties with exact reward-pool escrow.
+- Validator-attested acceptance with automatic Galileo settlement.
 - 25 MB upload limit and bounty-specific file-type validation.
 - Browser-side SHA-256 duplicate detection for the current workspace.
 - Receipt-backed submissions with a real Merkle root and transaction hash.
@@ -75,6 +77,7 @@ Private keys are never requested by or embedded in the frontend. Every upload tr
 | Storage indexer | `https://indexer-storage-testnet-turbo.0g.ai` |
 | Chain explorer | `https://chainscan-galileo.0g.ai` |
 | Storage explorer | `https://storagescan-galileo.0g.ai` |
+| DataForge escrow contract | `0x6a440691ee49785BD9863F1232b0F054c94B8167` |
 
 ## Technology
 
@@ -159,9 +162,7 @@ Secrets must never use a `NEXT_PUBLIC_` variable unless they are intentionally s
 
 ## Current production boundary
 
-The deployed application is a working **Galileo testnet storage and provenance MVP**. It is suitable for testing wallet connection, bounty configuration, real storage uploads, receipt inspection, and manifest export.
-
-The deployed application is a shared, on-chain Galileo testnet marketplace. Bounties are funded in the DataForge escrow contract, accepted submissions settle automatically, and the server-only validator checks supported text and structured files through 0G Compute. Binary media receives technical checks and remains in requester review until a suitable model is available.
+The deployed application is a shared, on-chain Galileo testnet marketplace. Bounties are funded in the [DataForge escrow contract](https://chainscan-galileo.0g.ai/address/0x6a440691ee49785BD9863F1232b0F054c94B8167), accepted submissions settle automatically, and the server-only validator checks supported text and structured files through 0G Compute. Binary media receives technical checks and remains in requester review until a suitable model is available.
 
 These boundaries are intentional so the UI never presents unfinished economic or validation features as real.
 
