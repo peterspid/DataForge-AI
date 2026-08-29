@@ -272,7 +272,7 @@ textarea:focus-visible {
 .sidebar-spacer {
   flex: 1;
 }
-.forgeguard-card {
+.dataforge-card {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -282,22 +282,22 @@ textarea:focus-visible {
   border-radius: 11px;
   margin: 14px 0 10px;
 }
-.forgeguard-card strong,
-.forgeguard-card span:not(.status-dot) {
+.dataforge-card strong,
+.dataforge-card span:not(.status-dot) {
   display: block;
 }
-.forgeguard-card strong {
+.dataforge-card strong {
   font-size: 12px;
 }
-.forgeguard-card span:not(.status-dot) {
+.dataforge-card span:not(.status-dot) {
   color: rgba(243, 240, 234, 0.58);
   font-size: 10px;
   margin-top: 2px;
 }
-.forgeguard-card .status-dot {
+.dataforge-card .status-dot {
   margin-left: auto;
 }
-.forgeguard-icon {
+.dataforge-icon {
   width: 28px;
   height: 28px;
   border-radius: 8px;

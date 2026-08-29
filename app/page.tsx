@@ -702,8 +702,8 @@ export default function Home() {
           })}
         </nav>
         <div className="sidebar-spacer" />
-        <div className="forgeguard-card">
-          <div className="forgeguard-icon">
+        <div className="dataforge-card">
+          <div className="dataforge-icon">
             <ShieldCheck size={17} />
           </div>
           <div>
@@ -768,8 +768,6 @@ export default function Home() {
           <CreateBountyView
             onCreated={handleCreatedBounty}
             walletAddress={wallet?.address}
-            onReview={reviewOnChain}
-            onDispute={disputeOnChain}
             onConnect={connectWallet}
           />
         ) : null}
@@ -797,7 +795,6 @@ export default function Home() {
             wallet={wallet}
             onConnect={connectWallet}
             submissions={submissions}
-            totalEarned={totalEarned}
           />
         ) : null}
       </main>
@@ -1196,14 +1193,10 @@ function BountyCard({
 function CreateBountyView({
   onCreated,
   walletAddress,
-  onReview,
-  onDispute,
   onConnect,
 }: {
   onCreated: (bounty: Bounty) => void;
   walletAddress?: string;
-  onReview: (submissionId: string, accept: boolean) => void;
-  onDispute: (submissionId: string) => void;
   onConnect: () => void;
 }) {
   const [form, setForm] = useState({
@@ -2062,14 +2055,16 @@ function ProfileView({
   wallet,
   onConnect,
   submissions,
-  totalEarned,
 }: {
   wallet: { address: string; chainId: string } | null;
   onConnect: () => void;
   submissions: Submission[];
-  totalEarned: number;
 }) {
-  const stored = submissions.filter(
+  const walletSubmissions = wallet
+    ? submissions.filter((submission) => submission.contributor?.toLowerCase() === wallet.address.toLowerCase())
+    : [];
+  const walletEarned = walletSubmissions.reduce((sum, submission) => sum + submission.reward, 0);
+  const stored = walletSubmissions.filter(
     (submission) =>
       submission.status === "Stored" || submission.status === "Accepted",
   ).length;
@@ -2107,12 +2102,12 @@ function ProfileView({
               <span>Stored proofs</span>
             </div>
             <div>
-              <strong>{numberFormat.format(submissions.length)}</strong>
+              <strong>{numberFormat.format(walletSubmissions.length)}</strong>
               <span>Submissions</span>
             </div>
             <div>
               <strong>
-                {Math.round((stored / Math.max(submissions.length, 1)) * 100)}
+                {Math.round((stored / Math.max(walletSubmissions.length, 1)) * 100)}
                 %
               </strong>
               <span>Proof coverage</span>
@@ -2164,12 +2159,12 @@ function ProfileView({
             <h2>Your earnings</h2>
           </div>
           <strong className="earnings-total">
-            {formatToken(totalEarned)}
+            {formatToken(walletEarned)}
           </strong>
         </div>
-        {submissions.some((submission) => submission.reward > 0) ? (
+        {walletSubmissions.some((submission) => submission.reward > 0) ? (
           <div className="reward-history-list">
-            {submissions
+            {walletSubmissions
               .filter((submission) => submission.reward > 0)
               .map((submission) => (
                 <div className="check-row" key={submission.id}>
