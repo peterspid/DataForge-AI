@@ -210,15 +210,6 @@ These boundaries are intentional so the UI never presents unfinished economic or
 - Implemented: on-chain event trail for bounties, submissions, payments, disputes, reports, and administrative actions.
 - Remaining: browser E2E matrix, error tracking, alerting, backups, incident response, legal pages, threat modeling, penetration testing, contract audit, and mainnet review.
 
-## Security principles
-
-- Never commit wallet private keys or API keys.
-- Keep 0G Compute and administrative credentials on the server only.
-- Treat wallet signatures as explicit user actions.
-- Validate uploads before spending transaction gas.
-- Do not show a contribution as stored without a real 0G receipt.
-- Do not show rewards as paid without an on-chain settlement transaction.
-- Preserve verifiable provenance from the original contribution through every exported dataset version.
  
 ## Status
 
