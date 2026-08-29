@@ -1,9 +1,10 @@
 import artifact from "../../contracts/artifacts/DataForgeMarket.json";
-import { BrowserProvider, Contract, ContractTransactionResponse, parseEther } from "ethers";
+import { BrowserProvider, Contract, ContractTransactionResponse, JsonRpcProvider, parseEther } from "ethers";
 
 export const DATAFORGE_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_DATAFORGE_CONTRACT_ADDRESS ?? "";
 export const DATAFORGE_CONTRACT_ABI = artifact.abi;
+export const DATAFORGE_RPC_URL = "https://evmrpc-testnet.0g.ai";
 
 export type WalletEthereum = {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -34,6 +35,17 @@ export async function contractRead(ethereum: WalletEthereum) {
   }
   const provider = new BrowserProvider(ethereum);
   return new Contract(DATAFORGE_CONTRACT_ADDRESS, DATAFORGE_CONTRACT_ABI, provider);
+}
+
+export function publicContract() {
+  if (!DATAFORGE_CONTRACT_ADDRESS) {
+    throw new Error("DataForge contract address is not configured.");
+  }
+  return new Contract(
+    DATAFORGE_CONTRACT_ADDRESS,
+    DATAFORGE_CONTRACT_ABI,
+    new JsonRpcProvider(DATAFORGE_RPC_URL),
+  );
 }
 
 export async function contractWrite(ethereum: WalletEthereum) {

@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type React from "react";
+import { formatEther } from "ethers";
 import { fingerprintFile, uploadToZeroG } from "./lib/zero-g-storage";
+import {
+  contractWrite,
+  getEthereum,
+  parseReward,
+  publicContract,
+  waitForTransaction,
+} from "./lib/dataforge-contract";
 import {
   ArrowDownToLine,
   ArrowRight,
@@ -40,12 +48,22 @@ type View =
   | "submissions"
   | "datasets"
   | "profile";
-type BountyStatus = "Open" | "Closing soon" | "Funded";
+type BountyStatus =
+  | "Draft"
+  | "Open"
+  | "Review"
+  | "Completed"
+  | "Closing soon"
+  | "Funded"
+  | "Cancelled"
+  | "Archived";
 type SubmissionStatus =
   | "Accepted"
   | "Stored"
   | "Uploading"
-  | "Needs review";
+  | "Needs review"
+  | "Rejected"
+  | "Disputed";
 
 type Bounty = {
   id: string;
@@ -62,6 +80,11 @@ type Bounty = {
   status: BountyStatus;
   minScore: number;
   tags: string[];
+  chainId?: string;
+  deadline?: number;
+  license?: string;
+  minimumScore?: number;
+  escrowTxHash?: string;
 };
 
 type Submission = {
@@ -77,6 +100,10 @@ type Submission = {
   txHash: string;
   fingerprint?: string;
   checks: { label: string; value: string }[];
+  reportHash?: string;
+  validationExplanation?: string;
+  validationModel?: string;
+  settlementTxHash?: string;
 };
 
 type Dataset = {
@@ -124,6 +151,101 @@ function shortAddress(address: string) {
 }
 function progressFor(bounty: Bounty) {
   return Math.min(100, Math.round((bounty.collected / bounty.target) * 100));
+}
+
+const chainBountyStatus: BountyStatus[] = [
+  "Draft",
+  "Open",
+  "Review",
+  "Completed",
+  "Cancelled",
+  "Archived",
+];
+const chainSubmissionStatus: SubmissionStatus[] = [
+  "Needs review",
+  "Accepted",
+  "Rejected",
+  "Disputed",
+];
+
+function parseBountyMetadata(metadata: string) {
+  try {
+    return JSON.parse(metadata) as {
+      title?: string;
+      description?: string;
+      type?: string;
+      location?: string;
+      tags?: string[];
+    };
+  } catch {
+    return {};
+  }
+}
+
+async function readOnChainWorkspace() {
+  const contract = publicContract();
+  const bountyCount = Number(await contract.bountyCount());
+  const nextBounties: Bounty[] = [];
+  const titleById = new Map<string, string>();
+  for (let id = 1; id <= bountyCount; id += 1) {
+    const raw = await contract.getBounty(id);
+    const metadata = parseBountyMetadata(String(raw.metadata));
+    const status = chainBountyStatus[Number(raw.status)] ?? "Open";
+    const bounty: Bounty = {
+      id: String(id),
+      title: metadata.title || `Bounty #${id}`,
+      description: metadata.description || "On-chain DataForge collection",
+      type: metadata.type || "Text",
+      target: Number(raw.target),
+      collected: Number(raw.accepted),
+      rewardPool: Number(formatEther(raw.balance)),
+      rewardPerSubmission: Number(formatEther(raw.reward)),
+      location: metadata.location || "Global",
+      createdBy: shortAddress(String(raw.requester)),
+      createdAt: "On-chain",
+      status,
+      minScore: Number(raw.minimumScore),
+      tags: Array.isArray(metadata.tags) ? metadata.tags.slice(0, 3) : [],
+      chainId: String(id),
+      deadline: Number(raw.deadline),
+      license: String(raw.license),
+    };
+    nextBounties.push(bounty);
+    titleById.set(String(id), bounty.title);
+  }
+  const submissionCount = Number(await contract.submissionCount());
+  const nextSubmissions: Submission[] = [];
+  for (let id = 1; id <= submissionCount; id += 1) {
+    const raw = await contract.getSubmission(id);
+    const bountyId = String(raw.bountyId);
+    const status = chainSubmissionStatus[Number(raw.status)] ?? "Needs review";
+    nextSubmissions.push({
+      id: String(id),
+      bountyId,
+      bountyTitle: titleById.get(bountyId) ?? `Bounty #${bountyId}`,
+      fileName: String(raw.fileName),
+      submittedAt: new Date(Number(raw.submittedAt) * 1000).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      status,
+      score: Number(raw.score),
+      reward: status === "Accepted" ? Number(formatEther((await contract.getBounty(raw.bountyId)).reward)) : 0,
+      hash: String(raw.rootHash),
+      txHash: String(raw.storageTxHash),
+      reportHash: String(raw.reportHash),
+      checks: [
+        { label: "Merkle root", value: "Recorded" },
+        { label: "Storage transaction", value: "Recorded" },
+        { label: "Validation report", value: "Signed" },
+        { label: "Settlement", value: status === "Accepted" ? "Released" : "Review" },
+      ],
+    });
+  }
+  return { bounties: nextBounties, submissions: nextSubmissions };
 }
 
 export default function Home() {
@@ -236,6 +358,36 @@ export default function Home() {
         });
       }
   }, [bounties, submissions, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    let cancelled = false;
+    const sync = async () => {
+      try {
+        const chain = await readOnChainWorkspace();
+        if (!cancelled) {
+          setBounties(chain.bounties);
+          setSubmissions(chain.submissions);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setNotice({
+            kind: "info",
+            text:
+              error instanceof Error
+                ? error.message
+                : "The shared Galileo marketplace could not be loaded.",
+          });
+        }
+      }
+    };
+    void sync();
+    const interval = window.setInterval(sync, 45_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [hydrated]);
   useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(null), 4200);
@@ -390,14 +542,49 @@ export default function Home() {
     }
   };
 
-  const handleCreatedBounty = (bounty: Bounty) => {
-    setBounties((current) => [bounty, ...current]);
-    setSelectedBountyId(bounty.id);
-    setNotice({
-      kind: "success",
-      text: "Bounty saved to this wallet workspace.",
-    });
-    changeView("marketplace");
+  const handleCreatedBounty = async (bounty: Bounty) => {
+    const ethereum = getEthereum();
+    if (!ethereum || !wallet) {
+      setNotice({ kind: "error", text: "Connect a Galileo wallet before publishing." });
+      return;
+    }
+    try {
+      const contract = await contractWrite(ethereum);
+      const deadline = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
+      const metadata = JSON.stringify({
+        title: bounty.title,
+        description: bounty.description,
+        type: bounty.type,
+        location: bounty.location,
+        tags: bounty.tags,
+      });
+      const target = BigInt(bounty.target);
+      const reward = parseReward(String(bounty.rewardPerSubmission));
+      const tx = await contract.createAndPublish(
+        metadata,
+        bounty.license ?? "CC-BY-4.0",
+        target,
+        reward,
+        deadline,
+        bounty.minScore || 70,
+        { value: target * reward },
+      );
+      const receipt = await waitForTransaction(tx);
+      const chain = await readOnChainWorkspace();
+      setBounties(chain.bounties);
+      setSubmissions(chain.submissions);
+      const created = chain.bounties
+        .filter((item) => item.createdBy === shortAddress(wallet.address))
+        .sort((a, b) => Number(b.id) - Number(a.id))[0];
+      if (created) setSelectedBountyId(created.id);
+      setNotice({ kind: "success", text: `Bounty published on Galileo in ${receipt.hash.slice(0, 10)}…` });
+      changeView("marketplace");
+    } catch (error) {
+      setNotice({
+        kind: "error",
+        text: error instanceof Error ? error.message : "The bounty could not be published on Galileo.",
+      });
+    }
   };
   const handleSubmitted = (submission: Submission) => {
     setSubmissions((current) => [submission, ...current]);
