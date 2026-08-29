@@ -1,12 +1,12 @@
-# DataForge AI
+# DataForge
 
-DataForge AI is a data-bounty and provenance workspace built for the **0G Galileo testnet**. Requesters can define data collection tasks, contributors can upload matching files to 0G Storage, and every successful contribution receives a verifiable storage root and transaction receipt.
+DataForge is a data-bounty and provenance workspace built for the **0G Galileo testnet**. Requesters can define data collection tasks, contributors can upload matching files to 0G Storage, and every successful contribution receives a verifiable storage root and transaction receipt.
 
 The product follows one rule: **proofs before promises**. Data is shown as stored only after 0G returns a real receipt. The application does not seed fake marketplace activity, invent quality scores, or simulate blockchain transactions and payments.
 
 **Live application:** [https://dataforge-0g.vercel.app](https://dataforge-0g.vercel.app)
 
-## What DataForge AI does
+## What DataForge does
 
 ### For requesters
 
@@ -87,13 +87,13 @@ Private keys are never requested by or embedded in the frontend. Every upload tr
 - ethers 6
 - Official 0G Storage TypeScript SDK browser bundle
 - Vercel Analytics and Vercel hosting
-- Browser `localStorage` for current workspace recovery
+- On-chain contract reads for shared workspace state
 
 ## Architecture
 
 ```text
 Next.js browser application
-  ├─ Bounties and submissions → local workspace storage
+  ├─ Bounties and submissions → DataForge Galileo escrow contract
   ├─ Wallet identity → injected EIP-1193 provider
   ├─ Network health → Galileo JSON-RPC
   ├─ Duplicate guard → Web Crypto SHA-256

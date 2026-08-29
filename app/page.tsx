@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type React from "react";
 import { formatEther, keccak256, toUtf8Bytes } from "ethers";
 import { fingerprintFile, uploadToZeroG } from "./lib/zero-g-storage";
@@ -273,28 +273,8 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [networkBlock, setNetworkBlock] = useState<number | null>(null);
   const [networkUnavailable, setNetworkUnavailable] = useState(false);
-  const timers = useRef<number[]>([]);
-
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("dataforge-workspace-v2");
-      if (saved) {
-        const parsed = JSON.parse(saved) as {
-          bounties?: Bounty[];
-          submissions?: Submission[];
-        };
-        if (parsed.bounties?.length) setBounties(parsed.bounties);
-        if (parsed.submissions?.length) setSubmissions(parsed.submissions);
-      }
-    } catch {
-      setNotice({
-        kind: "info",
-        text: "Your saved workspace could not be loaded. Starting with an empty workspace.",
-      });
-    } finally {
-      setHydrated(true);
-    }
-    return () => timers.current.forEach((timer) => window.clearTimeout(timer));
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -347,21 +327,6 @@ export default function Home() {
       })
       .catch(() => undefined);
   }, []);
-
-  useEffect(() => {
-    if (hydrated)
-      try {
-        window.localStorage.setItem(
-          "dataforge-workspace-v2",
-          JSON.stringify({ bounties, submissions }),
-        );
-      } catch {
-        setNotice({
-          kind: "error",
-          text: "This browser could not save the workspace. Export important proof receipts before leaving.",
-        });
-      }
-  }, [bounties, submissions, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -875,7 +840,7 @@ function OverviewView({
   onView: (view: View) => void;
 }) {
   const activeBounties = bounties.filter(
-    (bounty) => bounty.status !== "Funded",
+    (bounty) => bounty.status === "Open" || bounty.status === "Review" || bounty.status === "Closing soon",
   );
   return (
     <div className="view animate-enter">
@@ -1069,6 +1034,7 @@ function MarketplaceView({
     () =>
       bounties.filter(
         (bounty) =>
+          (bounty.status === "Open" || bounty.status === "Review" || bounty.status === "Closing soon") &&
           `${bounty.title} ${bounty.description} ${bounty.tags.join(" ")}`
             .toLowerCase()
             .includes(query.toLowerCase()) &&
@@ -1163,6 +1129,7 @@ function BountyCard({
   onContribute: () => void;
 }) {
   const progress = progressFor(bounty);
+  const canContribute = bounty.status === "Open" || bounty.status === "Review" || bounty.status === "Closing soon";
   return (
     <article className="bounty-card">
       <div className="bounty-card-top">
@@ -1215,8 +1182,9 @@ function BountyCard({
         <button
           className="button button-small button-primary"
           onClick={onContribute}
+          disabled={!canContribute}
         >
-          Contribute <ArrowRight size={14} />
+          {canContribute ? "Contribute" : bounty.status} <ArrowRight size={14} />
         </button>
       </div>
     </article>
@@ -1932,7 +1900,7 @@ function UploadPanel({
               onChange={(event) => setBountyId(event.target.value)}
             >
               {bounties
-                .filter((item) => item.status !== "Funded")
+                .filter((item) => item.status === "Open" || item.status === "Review" || item.status === "Closing soon")
                 .map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.title}
