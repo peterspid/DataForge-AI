@@ -49,7 +49,7 @@ export function publicContract() {
   return new Contract(
     address,
     DATAFORGE_CONTRACT_ABI,
-    new JsonRpcProvider(DATAFORGE_RPC_URL),
+    new JsonRpcProvider(DATAFORGE_RPC_URL, GALILEO_NETWORK),
   );
 }
 

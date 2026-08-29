@@ -200,7 +200,7 @@ export async function POST(request: Request) {
   });
   const reportHash = hashReport(report);
   const issuedAt = Math.floor(Date.now() / 1000);
-  const provider = new JsonRpcProvider(RPC_URL);
+  const provider = new JsonRpcProvider(RPC_URL, { chainId: 16602, name: "0g-galileo" });
   const contract = new Contract(contractAddress, artifact.abi, provider);
   const digest = await contract.validationDigest(
     BigInt(input.bountyId),

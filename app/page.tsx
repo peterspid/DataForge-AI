@@ -1212,23 +1212,26 @@ function CreateBountyView({
   const [error, setError] = useState("");
   const update = (field: keyof typeof form, value: string) =>
     setForm((current) => ({ ...current, [field]: value }));
+  const targetCount = Number(form.target) || 0;
+  const rewardPerItem = Number(form.rewardPerSubmission) || 0;
+  const requiredPool = targetCount * rewardPerItem;
+  const poolValue = Number(form.rewardPool) || 0;
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!walletAddress) {
       setError("Connect a 0G Galileo wallet before creating a bounty.");
       return;
     }
-    if (
-      !form.title.trim() ||
-      !form.description.trim() ||
-      Number(form.target) < 1 ||
-      Number(form.rewardPool) <= 0 ||
-      Number(form.rewardPerSubmission) <= 0 ||
-      Number(form.rewardPool) <
-        Number(form.target) * Number(form.rewardPerSubmission)
-    ) {
+    if (!form.title.trim() || !form.description.trim() || targetCount < 1 || poolValue <= 0 || rewardPerItem <= 0) {
       setError(
-        "Add the required fields and make sure the pool covers target items × reward per item.",
+        "Complete the title, description, target, reward pool, and reward per item with positive values.",
+      );
+      return;
+    }
+    if (poolValue < requiredPool) {
+      const shortfall = requiredPool - poolValue;
+      setError(
+        `Reward pool is too small. This bounty needs at least ${tokenNumberFormat.format(requiredPool)} 0G; add ${tokenNumberFormat.format(shortfall)} 0G more.`,
       );
       return;
     }
@@ -1370,6 +1373,17 @@ function CreateBountyView({
                 placeholder="0.20"
               />
             </Field>
+          </div>
+          <div className={`reward-calculation ${poolValue >= requiredPool && requiredPool > 0 ? "reward-calculation-ok" : ""}`} role="status" aria-live="polite">
+            <span>Required escrow</span>
+            <strong>{requiredPool > 0 ? `${tokenNumberFormat.format(requiredPool)} 0G` : "Enter target and reward"}</strong>
+            <small>
+              {requiredPool > 0 && poolValue < requiredPool
+                ? `${tokenNumberFormat.format(requiredPool - poolValue)} 0G still needed`
+                : requiredPool > 0
+                  ? "Pool covers every target item"
+                  : "Target × reward per item"}
+            </small>
           </div>
           {error ? (
             <p className="form-error" role="alert">
