@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type React from "react";
 import { formatEther, keccak256, toUtf8Bytes } from "ethers";
 import { fingerprintFile, uploadToZeroG } from "./lib/zero-g-storage";
+import LandingPage from "./components/LandingPage";
 import {
   contractWrite,
   getEthereum,
@@ -252,7 +253,7 @@ async function readOnChainWorkspace() {
   return { bounties: nextBounties, submissions: nextSubmissions };
 }
 
-export default function Home() {
+export function DashboardHome() {
   const [view, setView] = useState<View>("overview");
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -273,6 +274,7 @@ export default function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [networkBlock, setNetworkBlock] = useState<number | null>(null);
   const [networkUnavailable, setNetworkUnavailable] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
   useEffect(() => {
     setHydrated(true);
   }, []);
@@ -462,7 +464,7 @@ export default function Home() {
         kind: "info",
         text: "No injected wallet found. You can browse the empty workspace, but 0G uploads require a wallet.",
       });
-      return;
+      return false;
     }
     try {
       const accounts = (await ethereum.request({
@@ -492,7 +494,7 @@ export default function Home() {
               kind: "info",
               text: "Your wallet is on another network. Switch to 0G Galileo (chain 16602) to submit data.",
             });
-            return;
+            return false;
           }
         }
       }
@@ -502,14 +504,32 @@ export default function Home() {
           kind: "success",
           text: `Wallet connected as ${shortAddress(accounts[0])}.`,
         });
+        return true;
       }
+      return false;
     } catch {
       setNotice({
         kind: "error",
         text: "Wallet connection was cancelled. Try again when you are ready.",
       });
+      return false;
     }
   };
+  const startFromLanding = async () => {
+    const connected = await connectWallet();
+    if (connected) {
+      window.history.pushState({}, "", "/dashboard");
+      setShowLanding(false);
+      setView("overview");
+    }
+  };
+  useEffect(() => {
+    setShowLanding(window.location.pathname !== "/dashboard");
+    const handlePopState = () => setShowLanding(window.location.pathname !== "/dashboard");
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+  if (showLanding) return <LandingPage onGetStarted={startFromLanding} />;
 
   const handleCreatedBounty = async (bounty: Bounty) => {
     const ethereum = getEthereum();
@@ -801,6 +821,8 @@ export default function Home() {
     </div>
   );
 }
+
+export default DashboardHome;
 
 function ViewHeader({
   eyebrow,
